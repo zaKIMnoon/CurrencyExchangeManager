@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "CurrencyExchangeManager": {
+    "CurrencyExchangeManagerAPI": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",
@@ -8,7 +8,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "https://localhost:7141;http://localhost:5251"
+      "applicationUrl": "https://localhost:7201;http://localhost:5270"
     },
     "IIS Express": {
       "commandName": "IISExpress",
@@ -18,10 +18,13 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "Docker": {
+    "Container (Dockerfile)": {
       "commandName": "Docker",
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
+      "environmentVariables": {
+        "ASPNETCORE_URLS": "https://+:443;http://+:80"
+      },
       "publishAllPorts": true,
       "useSSL": true
     }
@@ -31,8 +34,8 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:50228",
-      "sslPort": 44332
+      "applicationUrl": "http://localhost:27609",
+      "sslPort": 44302
     }
   }
 }
