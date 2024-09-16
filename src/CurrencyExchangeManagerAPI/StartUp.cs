@@ -25,6 +25,11 @@ namespace CurrencyExchangeManagerAPI
             services.AddSingleton<CurrencyRateRepository>();
             services.Configure<BackgroundServiceSettings>(Configuration.GetSection("BackgroundServiceSettings"));
             services.AddHostedService<CurrencyService>();
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = Configuration.GetSection("Redis")["ConnectionString"];
+                
+            });
         }
     }
 }

@@ -9,9 +9,11 @@ namespace CurrencyExchangeManagerLib.Models
 {
     public class CurrencyRateReadOnly
     {
-        public string currency_code { get; set; }   
-        public string currency_name { get; set; }
-        public DateTime created_date { get; set; }
+        public int exchange_rate_id {  get; set; }
+        public string Source_Currency { get; set; }   
+        public string Target_Currency { get; set; }
+        public int source_system_id { get; set; }   
         public decimal rate { get; set; }
+        public DateTime created_date { get; set; }
     }
 }

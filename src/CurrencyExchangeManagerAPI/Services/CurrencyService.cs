@@ -32,14 +32,14 @@ namespace CurrencyExchangeManagerAPI.Services
             _currencyRateRepository = currencyRateRepository;
         }
 
-        public SourceSystem GetSourceSystem()
+        public async Task<SourceSystem> GetSourceSystem()
         {
             sourceSystem = new SourceSystem() { Source_System_Name = "openexchangerates", Source_System_Url = _apiconfig.baseurl };
-            var dbSourceSystem = _sourceSystemRepository.GetByName(sourceSystem.Source_System_Name);
+            var dbSourceSystem = await _sourceSystemRepository.GetByNameAsync(sourceSystem.Source_System_Name);
 
             if (dbSourceSystem == null)
             {
-                dbSourceSystem = _sourceSystemRepository.Add(sourceSystem);
+                dbSourceSystem = await _sourceSystemRepository.AddAsync(sourceSystem);
             }
             return dbSourceSystem;
         }
@@ -58,8 +58,8 @@ namespace CurrencyExchangeManagerAPI.Services
 
             var currencyexchangerates = JsonSerializer.Deserialize<CurrencyExchangeRates>(responseBody, options);
 
-            var dbCurrencies = _currencyRepository.GetAll();
-            var sourcesystem = GetSourceSystem();
+            var dbCurrencies = await _currencyRepository.GetAllAsync();
+            var sourcesystem = await GetSourceSystem();
             var baseCurrency = dbCurrencies.Where(c => c.currency_code == currencyexchangerates.Base).FirstOrDefault();
 
             var newCurrencyRateList = new List<CurrencyRate>();
@@ -83,7 +83,7 @@ namespace CurrencyExchangeManagerAPI.Services
                 response.EnsureSuccessStatusCode();
                 string responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
                 var currencies = JsonSerializer.Deserialize<Dictionary<string, string>>(responseBody);
-                var dbCurrencies = _currencyRepository.GetAll();
+                var dbCurrencies = await _currencyRepository.GetAllAsync();
 
                 var missingCurrencylist = new List<Currency>();
 
@@ -97,8 +97,8 @@ namespace CurrencyExchangeManagerAPI.Services
                     }
                 });
                 
-                missingCurrencylist.ForEach(currency => {
-                    _currencyRepository.Add(currency);
+                missingCurrencylist.ForEach(async currency => {
+                    await _currencyRepository.AddAsync(currency);
                 });
             }
             catch (HttpRequestException e)
@@ -112,7 +112,7 @@ namespace CurrencyExchangeManagerAPI.Services
             while (!stoppingToken.IsCancellationRequested)
             {
                 // Your background task logic here
-                SourceSystem sourcesystem = GetSourceSystem();
+                SourceSystem sourcesystem = await GetSourceSystem();
                 //ImportCurrency();
                 //ImportCurrencyRates();
                 await Task.Delay(_settings.DelayMilliseconds, stoppingToken); // Delay from settings

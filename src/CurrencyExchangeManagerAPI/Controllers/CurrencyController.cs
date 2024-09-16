@@ -19,16 +19,25 @@ namespace CurrencyExchangeManagerAPI.Controllers
         }
         // GET: api/<CurrencyController>
         [HttpGet]
-        public IEnumerable<Currency> Get()
+        public async Task<IEnumerable<Currency>> Get()
         {
-            return _currencyRepository.GetAll();
+            return await _currencyRepository.GetAllAsync();
         }
 
         // GET api/<CurrencyController>/5
         [HttpGet("{currency_code}")]
-        public Currency Get(string currency_code)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Get(string currency_code)
         {
-            return _currencyRepository.GetByName(currency_code);
+            var currency = await _currencyRepository.GetByNameAsync(currency_code);
+
+            if (currency is null)
+            {
+                return NotFound($"{currency_code} was not found.");
+            }
+
+            return Ok(currency);
         }
     }
 }
