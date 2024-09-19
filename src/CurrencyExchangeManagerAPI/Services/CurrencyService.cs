@@ -77,14 +77,17 @@ namespace CurrencyExchangeManagerAPI.Services
         {
             try
             {
-                string url = _apiconfig.GetCurrencyFullPathRequest(); // Replace with your API URL
+                string url = _apiconfig.GetCurrencyFullPathRequest(); 
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
                 HttpResponseMessage response = await client.GetAsync(url).ConfigureAwait(true);
                 response.EnsureSuccessStatusCode();
                 string responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
                 var currencies = JsonSerializer.Deserialize<Dictionary<string, string>>(responseBody);
+                
+                //Get currencies from the database
                 var dbCurrencies = await _currencyRepository.GetAllAsync();
 
+                //This code below was to check for missing currencies and add them to the database. 
                 var missingCurrencylist = new List<Currency>();
 
                 currencies.ToList().ForEach(currency => {
@@ -98,6 +101,7 @@ namespace CurrencyExchangeManagerAPI.Services
                 });
                 
                 missingCurrencylist.ForEach(async currency => {
+                    //Add Currencies to the database
                     await _currencyRepository.AddAsync(currency);
                 });
             }
@@ -113,8 +117,8 @@ namespace CurrencyExchangeManagerAPI.Services
             {
                 // Your background task logic here
                 SourceSystem sourcesystem = await GetSourceSystem();
-                //ImportCurrency();
-                //ImportCurrencyRates();
+                ImportCurrency();
+                ImportCurrencyRates();
                 await Task.Delay(_settings.DelayMilliseconds, stoppingToken); // Delay from settings
             }
         }

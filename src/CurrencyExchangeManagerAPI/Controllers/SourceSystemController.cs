@@ -25,15 +25,16 @@ namespace CurrencyExchangeManagerAPI.Controllers
         public async Task<IEnumerable<SourceSystem>> Get()
         {
             var cacheKey = "SourceSystemList";
-            var cachedData = await _cache.GetStringAsync(cacheKey);
+            var cachedData = await _cache.GetAsync(cacheKey);
 
-            if (!string.IsNullOrEmpty(cachedData)) {
-                return JsonSerializer.Deserialize<IEnumerable<SourceSystem>>(cachedData);
+            if (cachedData != null) {
+                Stream stream = new MemoryStream(cachedData);
+                return await JsonSerializer.DeserializeAsync<IEnumerable<SourceSystem>>(stream).ConfigureAwait(false);
             }
 
             var sourceSystemList = await _sourceSystemRepository.GetAllAsync();
             var serializedData = JsonSerializer.Serialize(sourceSystemList);
-            var cacheOptions = new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1) };
+            var cacheOptions = new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15) };
             await _cache.SetStringAsync(cacheKey, serializedData,cacheOptions);
 
             return sourceSystemList;
@@ -45,6 +46,7 @@ namespace CurrencyExchangeManagerAPI.Controllers
         [HttpGet("{source_system_name}")]
         public async Task<IActionResult> Get(string source_system_name)
         {
+
             var source_system = await _sourceSystemRepository.GetByNameAsync(source_system_name);
          
             if (source_system is null)
